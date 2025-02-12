@@ -1,0 +1,34 @@
+{
+    "manifest_version": 2,
+    "name": "Rakuten Wishlist",
+    "version": "1.0.0",
+    "description": "Wishlist for Rakuten Shopping",
+    "icons": {
+        "48": "icons/icon-48.png",
+        "96": "icons/icon-96.png"
+    },
+    "permissions": [
+        "contextMenus",
+        "storage",
+        "activeTab"
+    ],
+    "browser_action": {
+        "default_title": "Voir la Wishlist"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*.shopping.rakuten.com/*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    }
+}
