@@ -11,6 +11,7 @@ to [Semantic Versioning](http://semver.org/).
 
 - English translations
 - French translations
+- Duplicates filter switch
 
 ## [1.0.0] - 2025-02-12
 
