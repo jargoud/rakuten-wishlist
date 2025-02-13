@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const wishlist = data.wishlist;
 
         if (wishlist.length === 0) {
-            wishlistContainer.innerHTML = "<p>Aucun produit dans la wishlist.</p>";
+            wishlistContainer.innerHTML = `<p>${getMessage('emptyWishlist')}</p>`;
             return;
         }
 
@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
         addClearProductsButtonListener();
         addSubmitButtonListener(wishlist);
     });
+
+    loadTranslations();
 });
 
 function addNavListeners() {
@@ -84,13 +86,13 @@ function getWishlistTableDOM(wishlist, removeProductButtonClass) {
         <a href="${product.url}"
            target="_blank"
            class="btn btn-outline-primary"
-           title="Afficher la page produit">
+           title="${getMessage('openProductPage')}">
             <i class="bi bi-box-arrow-up-right"></i>
         </a>
         <button class="btn btn-outline-primary ${removeProductButtonClass}"
                 data-name="${product.name}"
                 data-sku="${product.sku}"
-                title="Supprimer le produit de la liste"
+                title="${getMessage('removeProductLabel')}"
                 type="button"
         >
             <i class="bi bi-trash"></i>
@@ -105,7 +107,7 @@ function getWishlistTableDOM(wishlist, removeProductButtonClass) {
 function addRemoveProductButtonsListeners(wishlist) {
     document.querySelectorAll(`.${REMOVE_PRODUCT_BUTTON_CLASS}`).forEach(button => {
         button.addEventListener("click", () => {
-            if (confirm(`Êtes-vous sûr de vouloir retirer « ${button.dataset.name} » de la liste ?`)) {
+            if (confirm(getMessage('removeProductConfirmationMessage', button.dataset.name))) {
                 removeProductFromWishlist(wishlist, button.dataset.sku);
             }
         });
@@ -114,7 +116,7 @@ function addRemoveProductButtonsListeners(wishlist) {
 
 function addClearProductsButtonListener() {
     document.getElementById("clear-products-button").addEventListener("click", () => {
-        if (confirm(`Êtes-vous sûr de vouloir vider entièrement la liste ?`)) {
+        if (confirm(getMessage('clearWishlistConfirmationMessage'))) {
             clearWishlist();
         }
     });
@@ -153,7 +155,7 @@ function generateReport(wishlist) {
     const reportContainer = document.getElementById("sellers-container");
 
     if (wishlist.length === 0) {
-        reportContainer.innerHTML = "<p>Aucun produit dans la wishlist.</p>";
+        reportContainer.innerHTML = `<p>${getMessage('emptyWishlist')}</p>`;
         return;
     }
 
@@ -168,21 +170,23 @@ function getReportDOM(wishlist) {
     return `${getProductsGroupedBySeller(wishlist)
         .sort((firstSeller, secondSeller) => secondSeller.products.length - firstSeller.products.length)
         .map(seller => `<div class="card mb-3">
-  <div class="card-body">
-    <h2 class="card-title mb-3">Vendeur : <a href="${seller.url}" target="_blank">${seller.name}</a>${seller.type === 'Organization' ? `<i class="bi bi-star ms-2" title="Vendeur professionnel"></i>` : ""}</h2>
-<ul class="list-group">
-${seller
+    <div class="card-body">
+        <h2 class="card-title mb-3">
+            ${getMessage('sellerCardTitle')}
+            <a href="${seller.url}" target="_blank">${seller.name}</a>
+            ${seller.type === 'Organization' ? `<i class="bi bi-star ms-2" title="${getMessage('professional')}"></i>` : ""}
+        </h2>
+        <ul class="list-group">
+            ${seller
             .products
             .sort((firstProduct, secondProduct) => firstProduct.name.localeCompare(secondProduct.name))
             .map(product => `<li class="list-group-item d-flex justify-content-between align-items-center">
-    <div class="me-auto">
-            ${product.name}
-    </div>
+    <div class="me-auto">${product.name}</div>
     <span class="badge text-bg-secondary rounded-pill">${product.itemCondition}</span>
     <span class="badge text-bg-primary rounded-pill ms-2">${product.price} €</span>
-  </li>`).join('')}
-</ul>
-  </div>
+</li>`).join('')}
+        </ul>
+    </div>
 </div>`).join("")}`;
 }
 
@@ -227,4 +231,30 @@ function getProductsGroupedBySeller(wishlist) {
     ).filter(
         seller => seller.products.length >= minProducts,
     );
+}
+
+function loadTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(
+        element => {
+            element.textContent = getMessage(element.dataset.i18n);
+        }
+    )
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(
+        element => {
+            element.setAttribute(
+                'placeholder',
+                getMessage(element.dataset.i18nPlaceholder)
+            );
+        }
+    )
+}
+
+/**
+ * @param {string} key
+ * @param {Array<string>} placeholders
+ * @returns {string}
+ */
+function getMessage(key, ...placeholders) {
+    return chrome.i18n.getMessage(key, ...placeholders);
 }

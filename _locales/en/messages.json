@@ -1,0 +1,100 @@
+{
+    "extensionName": {
+        "message": "Rakuten Wishlist",
+        "description": "Extension name"
+    },
+    "extensionDescription": {
+        "message": "Wishlist for Rakuten Shopping",
+        "description": "Extension description"
+    },
+    "wishlistPageTitle": {
+        "message": "Rakuten Wishlist",
+        "description": "Wishlist page title"
+    },
+    "productsTab": {
+        "message": "Products list",
+        "description": "Products tab label"
+    },
+    "sellersTab": {
+        "message": "Sellers",
+        "description": "Sellers tab label"
+    },
+    "productMPN": {
+        "message": "MPN",
+        "description": "Heading label for MPN column"
+    },
+    "productSKU": {
+        "message": "SKU",
+        "description": "Heading label for SKU column"
+    },
+    "productName": {
+        "message": "Name",
+        "description": "Heading label for name column"
+    },
+    "productActions": {
+        "message": "Actions",
+        "description": "Heading label for actions column"
+    },
+    "clearWishlistLabel": {
+        "message": "Clear the list",
+        "description": "Clear wishlist button label"
+    },
+    "clearWishlistConfirmationMessage": {
+        "message": "Are you sure to want to clear the list?",
+        "description": "Clear wishlist action confirmation message"
+    },
+    "openProductPage": {
+        "message": "Open product page",
+        "description": "Open product page button title"
+    },
+    "removeProductLabel": {
+        "message": "Remove product from the list",
+        "description": "Remove product button label"
+    },
+    "removeProductConfirmationMessage": {
+        "message": "Are you sure to want to remove « $PRODUCT_NAME$ » from the list?",
+        "description": "Remove product action confirmation message",
+        "placeholders": {
+            "product_name": {
+                "content": "$1",
+                "example": "https://developer.mozilla.org"
+            }
+        }
+    },
+    "emptyWishlist": {
+        "message": "No products in the wishlist.",
+        "description": "Empty wishlist label"
+    },
+    "maxPriceLabel": {
+        "message": "Maximal price",
+        "description": "Max price input label"
+    },
+    "maxPriceHint": {
+        "message": "Leave empty to not filter.",
+        "description": "Max price input hint"
+    },
+    "minProducts": {
+        "message": "Minimal number of products",
+        "description": "Min number of products input label"
+    },
+    "submitLabel": {
+        "message": "Filter sellers",
+        "description": "Submit button label"
+    },
+    "sellerCardTitle": {
+        "message": "Seller:",
+        "description": "Seller card title"
+    },
+    "professional": {
+        "message": "Professional seller",
+        "description": "Professional seller title"
+    },
+    "addToWishlist": {
+        "message": "Add to wishlist",
+        "description": "Add to wishlist"
+    },
+    "openWishlist": {
+        "message": "Open wishlist",
+        "description": "Open wishlist"
+    }
+}

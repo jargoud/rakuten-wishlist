@@ -10,13 +10,13 @@ chrome.runtime.onInstalled.addListener(() => {
 
     createContextMenu({
         id: "addToWishlist",
-        title: "Ajouter à la Wishlist",
+        title: chrome.i18n.getMessage('addToWishlist'),
         parentId,
     });
 
     createContextMenu({
         id: "viewWishlist",
-        title: "Voir la Wishlist",
+        title: chrome.i18n.getMessage('openWishlist'),
         parentId,
     });
 });

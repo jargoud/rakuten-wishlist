@@ -1,0 +1,96 @@
+{
+    "extensionName": {
+        "message": "Wishlist Rakuten",
+        "description": "Extension name"
+    },
+    "extensionDescription": {
+        "message": "Wishlist pour le site Rakuten Shopping",
+        "description": "Extension description"
+    },
+    "productsTab": {
+        "message": "Liste des produits",
+        "description": "Products tab label"
+    },
+    "sellersTab": {
+        "message": "Vendeurs",
+        "description": "Sellers tab label"
+    },
+    "productMPN": {
+        "message": "MPN",
+        "description": "Heading label for MPN column"
+    },
+    "productSKU": {
+        "message": "SKU",
+        "description": "Heading label for SKU column"
+    },
+    "productName": {
+        "message": "Nom",
+        "description": "Heading label for name column"
+    },
+    "productActions": {
+        "message": "Actions",
+        "description": "Heading label for actions column"
+    },
+    "clearWishlistLabel": {
+        "message": "Vider la liste",
+        "description": "Clear wishlist button label"
+    },
+    "clearWishlistConfirmationMessage": {
+        "message": "Êtes-vous sûr de vouloir vider la liste ?",
+        "description": "Clear wishlist action confirmation message"
+    },
+    "openProductPage": {
+        "message": "Afficher le produit",
+        "description": "Open product page button title"
+    },
+    "removeProductLabel": {
+        "message": "Retirer le produit",
+        "description": "Remove product button label"
+    },
+    "removeProductConfirmationMessage": {
+        "message": "Êtes-vous sûr de vouloir retirer « $PRODUCT_NAME$ » de la liste ?",
+        "description": "Remove product action confirmation message",
+        "placeholders": {
+            "product_name": {
+                "content": "$1",
+                "example": "https://developer.mozilla.org"
+            }
+        }
+    },
+    "emptyWishlist": {
+        "message": "Aucun produit dans la liste.",
+        "description": "Empty wishlist label"
+    },
+    "maxPriceLabel": {
+        "message": "Prix maximal",
+        "description": "Max price input label"
+    },
+    "maxPriceHint": {
+        "message": "Laisser vide pour ne pas filtrer.",
+        "description": "Max price input hint"
+    },
+    "minProducts": {
+        "message": "Nombre minimal de produits",
+        "description": "Min number of products input label"
+    },
+    "submitLabel": {
+        "message": "Filtrer les vendeurs",
+        "description": "Submit button label"
+    },
+    "sellerCardTitle": {
+        "message": "Vendeur :",
+        "description": "Seller card title"
+    },
+    "professional": {
+        "message": "Vendeur professionnel",
+        "description": "Professional seller title"
+    },
+    "addToWishlist": {
+        "message": "Ajouter à la wishlist",
+        "description": "Add to wishlist"
+    },
+    "openWishlist": {
+        "message": "Voir la wishlist",
+        "description": "Open wishlist"
+    }
+}
