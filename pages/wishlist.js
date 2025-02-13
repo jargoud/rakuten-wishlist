@@ -197,9 +197,12 @@ function getReportDOM(wishlist) {
 function getProductsGroupedBySeller(wishlist) {
     const maxPrice = parseFloat(document.getElementById("maxPrice").value);
     const minProducts = parseInt(document.getElementById("minProducts").value);
+    const shouldFilterDuplicates = document.getElementById("filterDuplicates").checked;
 
     return Object.values(
         wishlist.reduce((acc, product) => {
+            const indexes = {};
+
             product.offers.forEach(offer => {
                 const price = parseFloat(offer.price);
 
@@ -209,12 +212,23 @@ function getProductsGroupedBySeller(wishlist) {
 
                 const key = offer.seller.name;
 
+                if (typeof indexes[key] === 'number' && shouldFilterDuplicates) {
+                    if (acc[key].products[indexes[key]].price > price) {
+                        acc[key].products[indexes[key]].price = price;
+                    }
+
+                    return;
+                }
+
                 acc[key] ??= {
                     name: offer.seller.name,
                     type: offer.seller['@type'],
                     products: [],
                     url: `https://fr.shopping.rakuten.com/boutique/${offer.seller.name}`
                 };
+
+                indexes[key] = acc[key].products.length;
+
                 acc[key].products.push({
                     mpn: product.mpn,
                     sku: product.sku,

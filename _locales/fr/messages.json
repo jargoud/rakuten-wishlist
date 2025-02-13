@@ -73,6 +73,10 @@
         "message": "Nombre minimal de produits",
         "description": "Min number of products input label"
     },
+    "filterDuplicates": {
+        "message": "Filtrer les doublons",
+        "description": "Filter duplicates"
+    },
     "submitLabel": {
         "message": "Filtrer les vendeurs",
         "description": "Submit button label"
