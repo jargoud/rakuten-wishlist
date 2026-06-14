@@ -73,6 +73,10 @@
         "message": "Nombre minimal de produits",
         "description": "Min number of products input label"
     },
+    "minProductsPlaceholder": {
+        "message": "Nb min. de produits par vendeur",
+        "description": "Min number of products input placeholder"
+    },
     "filterDuplicates": {
         "message": "Filtrer les doublons",
         "description": "Filter duplicates"
