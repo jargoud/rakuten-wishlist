@@ -1,6 +1,16 @@
 const HIDDEN_CLASS = 'visually-hidden';
 const REMOVE_PRODUCT_BUTTON_CLASS = 'remove-product-button';
 
+function escHtml(str) {
+    return String(str ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
+
+function safeUrl(url) {
+    return /^https?:\/\//.test(url) ? url : '#';
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     addNavListeners();
 
@@ -79,20 +89,21 @@ function getWishlistTableDOM(wishlist, removeProductButtonClass) {
     return `${wishlist
         .sort((firstProduct, secondProduct) => firstProduct.name.localeCompare(secondProduct.name))
         .map(product => `<tr>
-    <td>${product.mpn}</td>
-    <td>${product.sku}</td>
-    <td><em>${product.name}</em>, ${product.brand}</td>
+    <td>${escHtml(product.mpn)}</td>
+    <td>${escHtml(product.sku)}</td>
+    <td><em>${escHtml(product.name)}</em>, ${escHtml(product.brand)}</td>
     <td>
-        <a href="${product.url}"
+        <a href="${safeUrl(product.url)}"
            target="_blank"
+           rel="noopener noreferrer"
            class="btn btn-outline-primary"
-           title="${getMessage('openProductPage')}">
+           title="${escHtml(getMessage('openProductPage'))}">
             <i class="bi bi-box-arrow-up-right"></i>
         </a>
         <button class="btn btn-outline-primary ${removeProductButtonClass}"
-                data-name="${product.name}"
-                data-sku="${product.sku}"
-                title="${getMessage('removeProductLabel')}"
+                data-name="${escHtml(product.name)}"
+                data-sku="${escHtml(product.sku)}"
+                title="${escHtml(getMessage('removeProductLabel'))}"
                 type="button"
         >
             <i class="bi bi-trash"></i>
@@ -172,18 +183,18 @@ function getReportDOM(wishlist) {
         .map(seller => `<div class="card mb-3">
     <div class="card-body">
         <h2 class="card-title mb-3">
-            ${getMessage('sellerCardTitle')}
-            <a href="${seller.url}" target="_blank">${seller.name}</a>
-            ${seller.type === 'Organization' ? `<i class="bi bi-star ms-2" title="${getMessage('professional')}"></i>` : ""}
+            ${escHtml(getMessage('sellerCardTitle'))}
+            <a href="${safeUrl(seller.url)}" target="_blank" rel="noopener noreferrer">${escHtml(seller.name)}</a>
+            ${seller.type === 'Organization' ? `<i class="bi bi-star ms-2" title="${escHtml(getMessage('professional'))}"></i>` : ""}
         </h2>
         <ul class="list-group">
             ${seller
             .products
             .sort((firstProduct, secondProduct) => firstProduct.name.localeCompare(secondProduct.name))
             .map(product => `<li class="list-group-item d-flex justify-content-between align-items-center">
-    <div class="me-auto">${product.name}</div>
-    <span class="badge text-bg-secondary rounded-pill">${product.itemCondition}</span>
-    <span class="badge text-bg-primary rounded-pill ms-2">${product.price} €</span>
+    <div class="me-auto">${escHtml(product.name)}</div>
+    <span class="badge text-bg-secondary rounded-pill">${escHtml(product.itemCondition)}</span>
+    <span class="badge text-bg-primary rounded-pill ms-2">${product.price} €</span>
 </li>`).join('')}
         </ul>
     </div>
@@ -224,7 +235,14 @@ function getProductsGroupedBySeller(wishlist) {
                     name: offer.seller.name,
                     type: offer.seller['@type'],
                     products: [],
-                    url: `https://fr.shopping.rakuten.com/boutique/${offer.seller.name}`
+                    url: (() => {
+                        try {
+                            const origin = new URL(product.url).origin;
+                            return `${origin}/boutique/${encodeURIComponent(offer.seller.name)}`;
+                        } catch {
+                            return `https://fr.shopping.rakuten.com/boutique/${encodeURIComponent(offer.seller.name)}`;
+                        }
+                    })()
                 };
 
                 indexes[key] = acc[key].products.length;
