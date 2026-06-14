@@ -1,3 +1,4 @@
+(() => {
 const HIDDEN_CLASS = 'visually-hidden';
 const REMOVE_PRODUCT_BUTTON_CLASS = 'remove-product-button';
 
@@ -30,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         addRemoveProductButtonsListeners(wishlist);
         addClearProductsButtonListener();
-        addSubmitButtonListener(wishlist);
+        addSubmitButtonListener();
     });
 
     loadTranslations();
@@ -121,7 +122,7 @@ function addRemoveProductButtonsListeners(wishlist) {
     document.querySelectorAll(`.${REMOVE_PRODUCT_BUTTON_CLASS}`).forEach(button => {
         button.addEventListener("click", () => {
             if (confirm(getMessage('removeProductConfirmationMessage', button.dataset.name))) {
-                removeProductFromWishlist(wishlist, button.dataset.sku);
+                removeProductFromWishlist(button.dataset.sku);
             }
         });
     });
@@ -142,11 +143,17 @@ function clearWishlist() {
     });
 }
 
-function addSubmitButtonListener(wishlist) {
+function addSubmitButtonListener() {
     document.getElementById("submit").addEventListener("click", (event) => {
         event.preventDefault();
 
-        generateReport(wishlist);
+        const maxPrice = parseFloat(document.getElementById("maxPrice").value) || Infinity;
+        const minProducts = parseInt(document.getElementById("minProducts").value) || 1;
+        const shouldFilterDuplicates = document.getElementById("filterDuplicates").checked;
+
+        chrome.storage.local.get({wishlist: []}, (data) => {
+            generateReport(data.wishlist, {maxPrice, minProducts, shouldFilterDuplicates});
+        });
     });
 }
 
@@ -154,18 +161,22 @@ function addSubmitButtonListener(wishlist) {
  * @param {Array} wishlist
  * @param {string} sku
  */
-function removeProductFromWishlist(wishlist, sku) {
-    const newWishlist = wishlist.filter(product => product.sku !== sku);
+function removeProductFromWishlist(sku) {
+    chrome.storage.local.get({wishlist: []}, (data) => {
+        const newWishlist = data.wishlist.filter(product => product.sku !== sku);
 
-    chrome.storage.local.set({wishlist: newWishlist}, () => {
-        location.reload();
+        chrome.storage.local.set({wishlist: newWishlist}, () => {
+            if (chrome.runtime.lastError) { console.error(chrome.runtime.lastError); return; }
+            location.reload();
+        });
     });
 }
 
 /**
  * @param {Array} wishlist
+ * @param {{maxPrice: number, minProducts: number, shouldFilterDuplicates: boolean}} filters
  */
-function generateReport(wishlist) {
+function generateReport(wishlist, filters) {
     const reportContainer = document.getElementById("sellers-container");
 
     if (wishlist.length === 0) {
@@ -175,15 +186,16 @@ function generateReport(wishlist) {
         return;
     }
 
-    reportContainer.innerHTML = getReportDOM(wishlist);
+    reportContainer.innerHTML = getReportDOM(wishlist, filters);
 }
 
 /**
  * @param {Array} wishlist
+ * @param {{maxPrice: number, minProducts: number, shouldFilterDuplicates: boolean}} filters
  * @return {string}
  */
-function getReportDOM(wishlist) {
-    return `${getProductsGroupedBySeller(wishlist)
+function getReportDOM(wishlist, filters) {
+    return `${getProductsGroupedBySeller(wishlist, filters)
         .sort((firstSeller, secondSeller) => secondSeller.products.length - firstSeller.products.length)
         .map(seller => `<div class="card mb-3">
     <div class="card-body">
@@ -207,13 +219,10 @@ function getReportDOM(wishlist) {
 
 /**
  * @param {Array} wishlist
+ * @param {{maxPrice: number, minProducts: number, shouldFilterDuplicates: boolean}} filters
  * @return {Array}
  */
-function getProductsGroupedBySeller(wishlist) {
-    const maxPrice = parseFloat(document.getElementById("maxPrice").value);
-    const minProducts = parseInt(document.getElementById("minProducts").value);
-    const shouldFilterDuplicates = document.getElementById("filterDuplicates").checked;
-
+function getProductsGroupedBySeller(wishlist, {maxPrice, minProducts, shouldFilterDuplicates}) {
     return Object.values(
         wishlist.reduce((acc, product) => {
             const indexes = {};
@@ -294,3 +303,4 @@ function loadTranslations() {
 function getMessage(key, ...placeholders) {
     return chrome.i18n.getMessage(key, ...placeholders);
 }
+})();
