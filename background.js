@@ -11,12 +11,14 @@ chrome.runtime.onInstalled.addListener(() => {
     createContextMenu({
         id: "addToWishlist",
         title: chrome.i18n.getMessage('addToWishlist'),
+        contexts: ["page"],
         parentId,
     });
 
     createContextMenu({
         id: "viewWishlist",
         title: chrome.i18n.getMessage('openWishlist'),
+        contexts: ["page"],
         parentId,
     });
 });
@@ -27,7 +29,7 @@ function createContextMenu({id, title, contexts, parentId = null, documentUrlPat
         parentId,
         title,
         contexts,
-        documentUrlPatterns,
+        ...(documentUrlPatterns && {documentUrlPatterns}),
     });
 }
 
@@ -40,37 +42,57 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 function addToWishlist(tab) {
-    chrome.tabs.executeScript(tab.id, {file: "content.js"}, () => {
-        chrome.tabs.sendMessage(tab.id, {action: "getProduct"}, (product) => {
+    chrome.scripting.executeScript({target: {tabId: tab.id}, files: ["content.js"]}, () => {
+        if (chrome.runtime.lastError) {
+            console.error('Could not inject content script:', chrome.runtime.lastError);
+            return;
+        }
+
+        chrome.tabs.sendMessage(tab.id, {action: "getProduct"}, (response) => {
             if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError);
                 return;
             }
 
+            if (response?.error) {
+                console.error('Could not extract product:', response.error);
+                return;
+            }
+
+            const product = response?.product;
+
             if (product) {
                 chrome.storage.local.get({wishlist: []}, (data) => {
                     const wishlist = data.wishlist;
-                    const index = wishlist.findIndex(
-                        (item) => item.sku === product.sku
-                    );
+                    const index = wishlist.findIndex((item) => item.sku === product.sku);
 
                     if (index >= 0) {
-                        data.wishlist[index] = product;
+                        wishlist[index] = product;
                     } else {
                         wishlist.push(product);
                     }
 
-                    chrome.storage.local.set({wishlist});
-
-                    reloadTabIfOpened();
+                    chrome.storage.local.set({wishlist}, () => {
+                        if (chrome.runtime.lastError) {
+                            console.error('Failed to save wishlist:', chrome.runtime.lastError);
+                            return;
+                        }
+                        openOrReloadWishlist();
+                    });
                 });
             }
         });
     });
 }
 
+let viewWishlistPending = false;
+
 function viewWishlist() {
+    if (viewWishlistPending) return;
+    viewWishlistPending = true;
+
     chrome.tabs.query({}, (tabs) => {
+        viewWishlistPending = false;
         const existingTab = getExistingTab(tabs);
 
         if (existingTab) {
@@ -89,16 +111,19 @@ function getExistingTab(tabs) {
     return tabs.find(tab => tab.url === getPopupUrl());
 }
 
-chrome.browserAction.onClicked.addListener(() => {
+chrome.action.onClicked.addListener(() => {
     viewWishlist();
 });
 
-function reloadTabIfOpened() {
+function openOrReloadWishlist() {
     chrome.tabs.query({}, (tabs) => {
         const existingTab = getExistingTab(tabs);
 
         if (existingTab) {
             chrome.tabs.reload(existingTab.id);
+            chrome.tabs.update(existingTab.id, {active: true});
+        } else {
+            chrome.tabs.create({url: getPopupUrl()});
         }
     });
 }
