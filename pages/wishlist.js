@@ -20,7 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const wishlist = data.wishlist;
 
         if (wishlist.length === 0) {
-            wishlistContainer.innerHTML = `<p>${getMessage('emptyWishlist')}</p>`;
+            const p = document.createElement('p');
+            p.textContent = getMessage('emptyWishlist');
+            wishlistContainer.replaceChildren(p);
             return;
         }
 
@@ -53,7 +55,7 @@ function getNavLinks() {
 
 function hideAllSections() {
     getNavLinks().forEach(button => {
-        document.getElementById(button.dataset.target).classList.add(HIDDEN_CLASS);
+        document.getElementById(button.dataset.target)?.classList.add(HIDDEN_CLASS);
     });
 }
 
@@ -61,7 +63,7 @@ function hideAllSections() {
  * @param {String} id
  */
 function showSection(id) {
-    document.getElementById(id).classList.remove(HIDDEN_CLASS);
+    document.getElementById(id)?.classList.remove(HIDDEN_CLASS);
 }
 
 /**
@@ -86,7 +88,7 @@ function activateNavLink(activeButton) {
  * @returns {string}
  */
 function getWishlistTableDOM(wishlist, removeProductButtonClass) {
-    return `${wishlist
+    return `${[...wishlist]
         .sort((firstProduct, secondProduct) => firstProduct.name.localeCompare(secondProduct.name))
         .map(product => `<tr>
     <td>${escHtml(product.mpn)}</td>
@@ -135,6 +137,7 @@ function addClearProductsButtonListener() {
 
 function clearWishlist() {
     chrome.storage.local.set({wishlist: []}, () => {
+        if (chrome.runtime.lastError) { console.error(chrome.runtime.lastError); return; }
         location.reload();
     });
 }
@@ -166,7 +169,9 @@ function generateReport(wishlist) {
     const reportContainer = document.getElementById("sellers-container");
 
     if (wishlist.length === 0) {
-        reportContainer.innerHTML = `<p>${getMessage('emptyWishlist')}</p>`;
+        const p = document.createElement('p');
+        p.textContent = getMessage('emptyWishlist');
+        reportContainer.replaceChildren(p);
         return;
     }
 
@@ -188,13 +193,12 @@ function getReportDOM(wishlist) {
             ${seller.type === 'Organization' ? `<i class="bi bi-star ms-2" title="${escHtml(getMessage('professional'))}"></i>` : ""}
         </h2>
         <ul class="list-group">
-            ${seller
-            .products
+            ${[...seller.products]
             .sort((firstProduct, secondProduct) => firstProduct.name.localeCompare(secondProduct.name))
             .map(product => `<li class="list-group-item d-flex justify-content-between align-items-center">
     <div class="me-auto">${escHtml(product.name)}</div>
     <span class="badge text-bg-secondary rounded-pill">${escHtml(product.itemCondition)}</span>
-    <span class="badge text-bg-primary rounded-pill ms-2">${product.price} €</span>
+    <span class="badge text-bg-primary rounded-pill ms-2">${escHtml(product.price.toFixed(2))} €</span>
 </li>`).join('')}
         </ul>
     </div>
@@ -217,7 +221,7 @@ function getProductsGroupedBySeller(wishlist) {
             product.offers.forEach(offer => {
                 const price = parseFloat(offer.price);
 
-                if (price >= maxPrice) {
+                if (isNaN(price) || price > maxPrice) {
                     return;
                 }
 
@@ -251,7 +255,7 @@ function getProductsGroupedBySeller(wishlist) {
                     mpn: product.mpn,
                     sku: product.sku,
                     name: product.name,
-                    brand: product.brand.name,
+                    brand: product.brand,
                     url: product.url,
                     price: price,
                     itemCondition: offer.itemCondition,
